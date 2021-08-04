@@ -3,20 +3,22 @@ import { Avatar, Button, Card, Form, Input, Popover } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { SwatchesPicker } from 'react-color';
 import { socketIo } from '../../utils/socket';
-import { storage } from '../../utils/storage';
+import { registerAndLogin } from '../../api/user';
 import bg from './bg.jpg';
 
 export const Login = ({ setLoginInfo }) => {
   const [nickname, setNickname] = useState();
   const [color, setColor] = useState('#ccc');
-  const onFinish = useCallback((data) => {
+  const onFinish = useCallback(async (data) => {
     const client = socketIo();
-    const userList = storage.get('userLists');
-    storage.set('userLists', userList ? userList.concat({...data, color }) : [{ ...data, color }])
+   
     client.register(data.nickname, (err, user) => {
       if (err) { console.log(err, 'err' )}
       console.log(user, 'user');
     });
+
+    const res = await registerAndLogin({ ...data, color });
+    console.log(res, 'res');
 
     setLoginInfo({
       ...data,
